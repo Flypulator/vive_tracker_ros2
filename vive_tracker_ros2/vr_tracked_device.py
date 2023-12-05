@@ -2,8 +2,7 @@ import time
 
 import openvr
 
-from vive_tracker_ros2.pose_sample_buffer import pose_sample_buffer
-from vive_tracker_ros2.util_funcs import convert_to_euler, convert_to_quaternion
+from vive_tracker_ros2.pose_lib import convert_to_euler, convert_to_quaternion, pose_sample_buffer
 
 
 class VrTrackedDevice:
