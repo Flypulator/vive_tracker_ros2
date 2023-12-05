@@ -110,7 +110,7 @@ class ViveTracker(Node):
 
             string_msg = String()
             string_msg.data = ('  X: ' + str(x) + '  Y: ' + str(y) + '  Z: ' + str(z) +
-                               '  Pitch: ' + str(pitch) + '  Roll: ' + str(roll) + '  Yaw: ' + str(yaw))
+                               '  Roll: ' + str(roll) + '  Pitch: ' + str(pitch) + '  Yaw: ' + str(yaw))
             self.publisher[deviceName].publish(string_msg)
 
             # publish odometry and pose for all devices but the lighthouses
