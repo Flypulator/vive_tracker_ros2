@@ -1,4 +1,3 @@
-import math
 import warnings
 
 import numpy as np
@@ -7,38 +6,14 @@ from scipy.spatial.transform import Rotation
 import rclpy
 import tf2_ros
 import vive_tracker_ros2.triad_openvr
-from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3, PoseWithCovarianceStamped, TransformStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
 from nav_msgs.msg import Odometry
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import String
 
 
-def vive_tracker():
-    rclpy.init()
-
-    node = rclpy.create_node('vive_tracker_frame')
-    broadcaster = {}
-    publisher = {}
-    tf_buffer = tf2_ros.Buffer()
-    tf_listener = tf2_ros.TransformListener(tf_buffer, node)
-    rate = node.create_rate(30)  # 30hz
-
-    try:
-        v = vive_tracker_ros2.triad_openvr.TriadOpenVr()
-    except Exception as ex:
-        if (type(ex).__name__ == 'OpenVRError') and (
-                ex.args[0] == 'VRInitError_Init_HmdNotFoundPresenceFailed (error number 126)'):
-            print('Cannot find the tracker.')
-            print('Is SteamVR running?')
-            print('Is the Vive Tracker turned on, connected, and paired with SteamVR?')
-            print('Are the Lighthouse Base Stations powered and in view of the Tracker?\n\n')
-        else:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            print(message)
-        # print(ex.args)
-        quit()
-
-    v.print_discovered_objects()
+class ViveTracker(Node):
     P = np.mat([[1e-6, 0, 0], [0, 1e-6, 0], [0, 0, 1e-3]])
     p_cov = np.zeros((6, 6))
     # position covariance
@@ -64,14 +39,37 @@ def vive_tracker():
     p_cov[5, :] = [0.0000032202291901186, -0.0000001408541892558, -0.0000029217229365340, -0.0000024486872043021,
                    -0.0000000030521109214, 0.0000007445433570531]
 
-    while rclpy.ok():
-        # if (deviceCount != v.get_device_count()):
-        #    v = triad_openvr.triad_openvr()
-        #    deviceCount = v.get_device_count()
-        # For each Vive Device
-        for deviceName in v.devices:
-            current_time = node.get_clock().now()
-            device = v.devices[deviceName]
+    def __init__(self):
+        super().__init__('vive_tracker_frame')
+        timer_period = 1  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.broadcaster = {}
+        self.publisher = {}
+
+        try:
+            self.v = vive_tracker_ros2.triad_openvr.TriadOpenVr()
+        except Exception as ex:
+            if (type(ex).__name__ == 'OpenVRError') and (
+                    ex.args[0] == 'VRInitError_Init_HmdNotFoundPresenceFailed (error number 126)'):
+                print('Cannot find the tracker.')
+                print('Is SteamVR running?')
+                print('Is the Vive Tracker turned on, connected, and paired with SteamVR?')
+                print('Are the Lighthouse Base Stations powered and in view of the Tracker?\n\n')
+            else:
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(ex).__name__, ex.args)
+                print(message)
+            # print(ex.args)
+            quit()
+
+        self.v.print_discovered_objects()
+
+        print("ViveTracker setup complete!")
+
+    def timer_callback(self):
+        for deviceName in self.v.devices:
+            current_time = self.get_clock().now()
+            device = self.v.devices[deviceName]
             publish_name_str = device.get_serial().replace("-", "_")
 
             # skip null devices
@@ -82,8 +80,8 @@ def vive_tracker():
             [x, y, z, qx, qy, qz, qw] = device.get_pose_quaternion()
             orientation = Rotation.from_quat([qx, qy, qz, qw])
 
-            if deviceName not in broadcaster:
-                broadcaster[deviceName] = tf2_ros.TransformBroadcaster(node)
+            if deviceName not in self.broadcaster:
+                self.broadcaster[deviceName] = tf2_ros.TransformBroadcaster(self)
 
             # Rotate Vive Trackers 180, so Z+ comes out on the top of the Tracker
             if "LHR" in device.get_serial():
@@ -102,26 +100,28 @@ def vive_tracker():
             tfs.transform.rotation.z = orientation.as_quat()[2]
             tfs.transform.rotation.w = orientation.as_quat()[3]
 
-            broadcaster[deviceName].sendTransform(tfs)
+            self.broadcaster[deviceName].sendTransform(tfs)
 
             # Publish a topic with euler angles as print out
             [x, y, z, roll, pitch, yaw] = device.get_pose_euler()
 
-            if deviceName not in publisher:
-                publisher[deviceName] = node.create_publisher(String, publish_name_str, 10)
+            if deviceName not in self.publisher:
+                self.publisher[deviceName] = self.create_publisher(String, publish_name_str, qos_profile_sensor_data)
 
             string_msg = String()
             string_msg.data = ('  X: ' + str(x) + '  Y: ' + str(y) + '  Z: ' + str(z) +
                                '  Pitch: ' + str(pitch) + '  Roll: ' + str(roll) + '  Yaw: ' + str(yaw))
-            publisher[deviceName].publish(string_msg)
+            self.publisher[deviceName].publish(string_msg)
 
-            #
+            # publish odometry and pose for all devices but the lighthouses
             if "reference" not in deviceName:
                 # create publisher
-                if deviceName + "_odom" not in publisher:
-                    publisher[deviceName + "_odom"] = node.create_publisher(Odometry, publish_name_str + "_odom", 50)
-                    publisher[deviceName + "_pose"] = node.create_publisher(PoseWithCovarianceStamped,
-                                                                            publish_name_str + "_pose", 10)
+                if deviceName + "_odom" not in self.publisher:
+                    self.publisher[deviceName + "_odom"] = self.create_publisher(Odometry, publish_name_str + "_odom",
+                                                                                 qos_profile_sensor_data)
+                    self.publisher[deviceName + "_pose"] = self.create_publisher(PoseWithCovarianceStamped,
+                                                                                 publish_name_str + "_pose",
+                                                                                 qos_profile_sensor_data)
 
                 # create odometry message
                 odom = Odometry()
@@ -138,8 +138,8 @@ def vive_tracker():
                 odom.twist.twist.angular.x, odom.twist.twist.angular.y, odom.twist.twist.angular.z = v_roll, v_pitch, v_yaw
                 # set covariance
                 # This is all wrong but close enough for now
-                odom.pose.covariance = tuple(p_cov.ravel().tolist())
-                odom.twist.covariance = tuple(p_cov.ravel().tolist())
+                odom.pose.covariance = tuple(self.p_cov.ravel().tolist())
+                odom.twist.covariance = tuple(self.p_cov.ravel().tolist())
 
                 # Create a pose with covariance stamped topic
                 pose = PoseWithCovarianceStamped()
@@ -150,20 +150,32 @@ def vive_tracker():
                 pose.pose.pose.orientation.x, pose.pose.pose.orientation.y = qx, qy
                 pose.pose.pose.orientation.z, pose.pose.pose.orientation.w = qz, qw
                 # set covariance
-                pose.pose.covariance = tuple(p_cov.ravel().tolist())
+                pose.pose.covariance = tuple(self.p_cov.ravel().tolist())
 
                 # publish all messages
                 if np.any([x, y, z, vx, vy, vz, v_roll, v_pitch, v_yaw]):  # only publish if at least one value != 0
                     # publish the message
                     try:
-                        publisher[deviceName + "_odom"].publish(odom)
-                        publisher[deviceName + "_pose"].publish(pose)
+                        self.publisher[deviceName + "_odom"].publish(odom)
+                        self.publisher[deviceName + "_pose"].publish(pose)
                     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                         warnings.warn("Publishing odometry and pose for device " + deviceName + " failed.")
                         continue
 
-        # rate.sleep()
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    vive_tracker = ViveTracker()
+
+    try:
+        rclpy.spin(vive_tracker)
+    except KeyboardInterrupt:
+        pass
+
+    vive_tracker.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
-    vive_tracker()
+    main()

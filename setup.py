@@ -14,12 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='flypulator',
-    maintainer_email='micha.schuster@tu-dresden.de',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer_email='flypulator@tu-dresden.de',
+    description='adaption of https://github.com/moon-wreckers/vive_tracker to ROS2',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'talker = vive-tracker-ros2.nodes.vive_tracker:main'
         ],
     },
 )
