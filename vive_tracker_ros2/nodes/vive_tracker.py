@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+import vive_tracker_ros2.triad_openvr
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3, PoseWithCovarianceStamped
 import rospy
 from std_msgs.msg import String
-import triad_openvr
+import util_funcs
 import time
 import sys
 import tf
@@ -22,7 +23,7 @@ def vive_tracker():
     deviceCount = 0
 
     try:
-      v = triad_openvr.triad_openvr()
+      v = vive_tracker_ros2.triad_openvr.TriadOpenVr()
     except Exception as ex:
       if (type(ex).__name__ == 'OpenVRError' and ex.args[0] == 'VRInitError_Init_HmdNotFoundPresenceFailed (error number 126)'):
         print('Cannot find the tracker.')

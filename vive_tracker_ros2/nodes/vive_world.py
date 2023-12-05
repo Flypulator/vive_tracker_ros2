@@ -28,7 +28,7 @@ def vive_world():
                 print ""
                 frame_generated = True
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            sys.stdout.write('.') 
+            sys.stdout.write('..')
         broadcaster.sendTransform(translation,
                         rotation,
                         rospy.Time.now(),
