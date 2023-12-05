@@ -7,6 +7,7 @@ from vive_tracker_ros2.vr_tracking_reference import VrTrackingReference
 class TriadOpenVr:
     def __init__(self):
         # Initialize OpenVR in the
+        print("Initializing OpenVR ...")
         self.vr = openvr.init(openvr.VRApplication_Other)
 
         # Initializing object to hold indexes for various tracked objects
@@ -14,7 +15,9 @@ class TriadOpenVr:
         self.devices = {}
         poses = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                         openvr.k_unMaxTrackedDeviceCount)
+
         # Iterate through the pose list to find the active devices and determine their type
+        print("Searching for active devices ...")
         for i in range(openvr.k_unMaxTrackedDeviceCount):
             if poses[i].bPoseIsValid:
                 device_class = self.vr.getTrackedDeviceClass(i)

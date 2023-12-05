@@ -169,6 +169,7 @@ def main(args=None):
     vive_tracker = ViveTracker()
 
     try:
+        print("Starting to spin ViveTracker node")
         rclpy.spin(vive_tracker)
     except KeyboardInterrupt:
         pass
