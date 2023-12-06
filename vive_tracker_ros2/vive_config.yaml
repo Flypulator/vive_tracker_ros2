@@ -5,9 +5,14 @@ rate: 100
 # serial number in format XXX-YYYYYYYY
 device_alias:
   LHR-AEB9F7F5: drone_tracker
+  LHB-65A6F476: lighthouse_pc
+  LHB-F77C4290: lighthouse_room
+  LHB-F00011C8: lighthouse_corner
+  LHB-9CF7D567: lighthouse_door
+
 
 # world frame offset in format: [[x,y,z],[qx,qy,qz,qw]], relative to vive original world frame
-world_frame_pose_offset: [[0,0,0],[0,0,0,1]] # TODO implement
+world_frame_pose_offset: [[1,2,3],[0,0,0,1]] # TODO set world origin
 
 # custom frame offset in format: [[x,y,z],[qx,qy,qz,qw]], in new world frame
 frames_pose_offset:

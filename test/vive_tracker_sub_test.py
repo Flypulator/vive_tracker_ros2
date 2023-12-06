@@ -1,5 +1,3 @@
-import pytest
-
 import rclpy
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry
@@ -24,8 +22,6 @@ class ViveTrackerTestSubscriber(Node):
         self.get_logger().info(log_str)
 
 
-@pytest.mark.copyright
-@pytest.mark.linter
 def main(args=None):
     rclpy.init(args=args)
 

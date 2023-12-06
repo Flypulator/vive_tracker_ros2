@@ -61,7 +61,7 @@ class VrTrackedDevice:
         # apply position offset from config file
         if self.alias in self.vive_config['frames_pose_offset']:
             [offset_pos, _] = self.vive_config['frames_pose_offset'][self.alias]
-            [x, y, z] = [x+offset_pos[0], y+offset_pos[1], z+offset_pos[1]]
+            [x, y, z] = [x+offset_pos[0], y+offset_pos[1], z+offset_pos[2]]
         return [x, y, z]
 
     def get_orientation(self):

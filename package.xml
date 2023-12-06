@@ -13,10 +13,9 @@
   <exec_depend>geometry_msgs</exec_depend>
 
   <exec_depend>warnings</exec_depend>
+  <exec_depend>pyyaml</exec_depend>
   <exec_depend>numpy</exec_depend>
   <exec_depend>scipy</exec_depend>
-
-  <test_depend>vive_tracker_sub_test</test_depend>
 
   <export>
     <build_type>ament_python</build_type>

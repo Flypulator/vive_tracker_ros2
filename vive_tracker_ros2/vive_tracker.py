@@ -78,10 +78,9 @@ class ViveTracker(Node):
             if 'Null' in device.serial:
                 continue
 
-            # get original pose
+            # get pose
             [x, y, z] = device.get_position()
             orientation = device.get_orientation()
-
             [qx, qy, qz, qw] = orientation.as_quat()
 
             # Broadcast the transformation

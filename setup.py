@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'talker = vive-tracker-ros2.vive_tracker:main'
+            'talker = vive-tracker-ros2.vive_tracker:main',
+            'talker = vive-tracker-ros2.vive_world:main',
         ],
     },
 )
