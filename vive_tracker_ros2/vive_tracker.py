@@ -89,7 +89,7 @@ class ViveTracker(Node):
 
             tfs = TransformStamped()
             tfs.header.stamp = current_time.to_msg()
-            tfs.header.frame_id = "vive_world"
+            tfs.header.frame_id = "vive_world"  # TODO: change to "world"
             tfs._child_frame_id = device.alias
             tfs.transform.translation.x = x
             tfs.transform.translation.y = y
