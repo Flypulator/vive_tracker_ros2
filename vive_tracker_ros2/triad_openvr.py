@@ -1,8 +1,7 @@
 import openvr
 import yaml
 
-from vive_tracker_ros2.vr_tracked_device import VrTrackedDevice
-from vive_tracker_ros2.vr_tracking_reference import VrTrackingReference
+from vive_tracker_ros2.vr_tracked_device import VrTrackedDevice, VrTrackingReference
 
 
 class TriadOpenVr:

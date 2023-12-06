@@ -5,8 +5,6 @@ import openvr
 import yaml
 from scipy.spatial.transform import Rotation
 
-from vive_tracker_ros2.pose_sample_buffer import PoseSampleBuffer
-
 
 class VrTrackedDevice:
     def __init__(self, vr_obj, index, device_class):
@@ -32,20 +30,6 @@ class VrTrackedDevice:
     @property
     def model(self):
         return self.vr.getStringTrackedDeviceProperty(self.index, openvr.Prop_ModelNumber_String)
-
-    def sample(self, num_samples, sample_rate):
-        interval = 1 / sample_rate
-        rtn = PoseSampleBuffer()
-        sample_start = time.time()
-        for i in range(num_samples):
-            start = time.time()
-            pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
-                                                           openvr.k_unMaxTrackedDeviceCount)
-            rtn.append(pose[self.index].mDeviceToAbsoluteTracking, time.time() - sample_start)
-            sleep_time = interval - (time.time() - start)
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-        return rtn
 
     def get_pose_matrix(self):
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
@@ -85,3 +69,8 @@ class VrTrackedDevice:
     def is_connected(self):
         tracking = self.vr.isTrackedDeviceConnected(self.index)
         return tracking
+
+
+class VrTrackingReference(VrTrackedDevice):
+    def get_mode(self):
+        return self.vr.getStringTrackedDeviceProperty(self.index, openvr.Prop_ModeLabel_String).upper()
