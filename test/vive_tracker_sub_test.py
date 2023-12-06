@@ -1,6 +1,7 @@
 import pytest
 
 import rclpy
+from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -9,11 +10,13 @@ from rclpy.qos import qos_profile_sensor_data
 class ViveTrackerTestSubscriber(Node):
     def __init__(self):
         super().__init__('vive_tracker_test_subscriber')
-        self.subscription = self.create_subscription(Odometry, 'LHR_AEB9F7F5_odom', self.listener_callback,
+        topic_name = 'LHR_AEB9F7F5'
+        self.subscription = self.create_subscription(String, topic_name, self.listener_callback,
                                                      qos_profile_sensor_data)
+        print(f"Subscription to device {topic_name} set up!")
 
     def listener_callback(self, msg):
-        log_str = f"x: {msg.pose.pose.position.x},y: {msg.pose.pose.position.y},z: {msg.pose.pose.position.z}"
+        log_str = msg.data
         self.get_logger().info(log_str)
 
 

@@ -33,35 +33,33 @@ class VrTrackedDevice:
                 time.sleep(sleep_time)
         return rtn
 
-    def get_pose_euler(self):
-        pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
-                                                       openvr.k_unMaxTrackedDeviceCount)
-        pose_matrix = np.asarray(
-            [[pose[self.index].mDeviceToAbsoluteTracking[i][j] for i in range(3)] for j in range(4)]).T
-        [x, y, z] = pose_matrix[:, 3].T
-        [xrot, yrot, zrot] = Rotation.from_matrix(pose_matrix[:3, :3]).as_euler("XYZ")
-        return [x, y, z, xrot, yrot, zrot]
-
-    def get_pose_quaternion(self):
-        pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
-                                                       openvr.k_unMaxTrackedDeviceCount)
-        pose_matrix = np.asarray(
-            [[pose[self.index].mDeviceToAbsoluteTracking[i][j] for i in range(3)] for j in range(4)]).T
-        [x, y, z] = pose_matrix[:, 3].T
-        [r_x, r_y, r_z, r_w] = Rotation.from_matrix(pose_matrix[:3, :3]).as_quat()
-        return [x, y, z, r_x, r_y, r_z, r_w]
-
     def get_pose_matrix(self):
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                        openvr.k_unMaxTrackedDeviceCount)
-        return pose[self.index].mDeviceToAbsoluteTracking
+        pose_matrix = np.asarray(
+            [[pose[self.index].mDeviceToAbsoluteTracking[i][j] for i in range(3)] for j in range(4)]).T
+        return pose_matrix
 
-    def get_velocities(self):
+    def get_position(self):
+        pose_matrix = self.get_pose_matrix()
+        [x, y, z] = pose_matrix[:, 3].T
+        return [x, y, z]
+
+    def get_orientation(self, flip_z_axis=False):
+        pose_matrix = self.get_pose_matrix()
+        orientation = Rotation.from_matrix(pose_matrix[:3, :3])
+        if flip_z_axis:
+            orientation = Rotation.from_euler("X", 180, degrees=True) * orientation
+        return orientation
+
+    def get_twist(self, flip_z_axis=False):
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                        openvr.k_unMaxTrackedDeviceCount)
         [v_x, v_y, v_z] = pose[self.index].vVelocity
-        [a_x, a_y, a_z] = pose[self.index].vAngularVelocity
-        return [v_x, v_y, v_z, a_x, a_y, a_z]
+        [omega_x, omega_y, omega_z] = pose[self.index].vAngularVelocity
+        if flip_z_axis:
+            [omega_x, omega_y, omega_z] = [omega_x, -omega_y, -omega_z]
+        return [v_x, v_y, v_z, omega_x, omega_y, omega_z]
 
     def is_connected(self):
         tracking = self.vr.isTrackedDeviceConnected(self.index)

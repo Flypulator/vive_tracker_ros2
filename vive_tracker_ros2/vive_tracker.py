@@ -1,7 +1,6 @@
 import warnings
 
 import numpy as np
-from scipy.spatial.transform import Rotation
 
 import rclpy
 import tf2_ros
@@ -76,16 +75,15 @@ class ViveTracker(Node):
             if 'Null' in device.get_serial():
                 continue
 
-            # Broadcast the transformation
-            [x, y, z, qx, qy, qz, qw] = device.get_pose_quaternion()
-            orientation = Rotation.from_quat([qx, qy, qz, qw])
+            # get pose
+            flip_z_axis = ("LHR" in device.get_serial())
+            [x, y, z] = device.get_position()
+            orientation = device.get_orientation(flip_z_axis=flip_z_axis)
+            [qx, qy, qz, qw] = orientation.as_quat()
 
+            # Broadcast the transformation
             if deviceName not in self.broadcaster:
                 self.broadcaster[deviceName] = tf2_ros.TransformBroadcaster(self)
-
-            # Rotate Vive Trackers 180, so Z+ comes out on the top of the Tracker
-            if "LHR" in device.get_serial():
-                orientation = Rotation.from_euler("X", 180, degrees=True) * orientation
 
             tfs = TransformStamped()
             tfs.header.stamp = current_time.to_msg()
@@ -94,23 +92,22 @@ class ViveTracker(Node):
             tfs.transform.translation.x = x
             tfs.transform.translation.y = y
             tfs.transform.translation.z = z
-
-            tfs.transform.rotation.x = orientation.as_quat()[0]
-            tfs.transform.rotation.y = orientation.as_quat()[1]
-            tfs.transform.rotation.z = orientation.as_quat()[2]
-            tfs.transform.rotation.w = orientation.as_quat()[3]
+            tfs.transform.rotation.x = qx
+            tfs.transform.rotation.y = qy
+            tfs.transform.rotation.z = qz
+            tfs.transform.rotation.w = qw
 
             self.broadcaster[deviceName].sendTransform(tfs)
 
             # Publish a topic with euler angles as print out
-            [x, y, z, roll, pitch, yaw] = device.get_pose_euler()
+            [yaw, pitch, roll] = orientation.as_euler("zyx")
 
             if deviceName not in self.publisher:
                 self.publisher[deviceName] = self.create_publisher(String, publish_name_str, qos_profile_sensor_data)
 
             string_msg = String()
             string_msg.data = ('  X: ' + str(x) + '  Y: ' + str(y) + '  Z: ' + str(z) +
-                               '  Roll: ' + str(roll) + '  Pitch: ' + str(pitch) + '  Yaw: ' + str(yaw))
+                               '  Yaw: ' + str(yaw) + '  Pitch: ' + str(pitch) + '  Roll: ' + str(roll))
             self.publisher[deviceName].publish(string_msg)
 
             # publish odometry and pose for all devices but the lighthouses
@@ -122,6 +119,8 @@ class ViveTracker(Node):
                     self.publisher[deviceName + "_pose"] = self.create_publisher(PoseWithCovarianceStamped,
                                                                                  publish_name_str + "_pose",
                                                                                  qos_profile_sensor_data)
+                # get twist
+                [vx, vy, vz, omega_x, omega_y, omega_z] = device.get_twist(flip_z_axis=flip_z_axis)
 
                 # create odometry message
                 odom = Odometry()
@@ -129,13 +128,14 @@ class ViveTracker(Node):
                 odom.header.frame_id = "vive_world"
                 # set the pose
                 odom.pose.pose.position.x, odom.pose.pose.position.y, odom.pose.pose.position.z = x, y, z
-                odom.pose.pose.orientation.x, odom.pose.pose.orientation.y = qx, qy
-                odom.pose.pose.orientation.z, odom.pose.pose.orientation.w = qz, qw
+                odom.pose.pose.orientation.x = qx
+                odom.pose.pose.orientation.y = qy
+                odom.pose.pose.orientation.z = qz
+                odom.pose.pose.orientation.w = qw
                 # set the velocity
                 odom.child_frame_id = publish_name_str
-                [vx, vy, vz, v_roll, v_pitch, v_yaw] = device.get_velocities()
                 odom.twist.twist.linear.x, odom.twist.twist.linear.y, odom.twist.twist.linear.z = vx, vy, vz
-                odom.twist.twist.angular.x, odom.twist.twist.angular.y, odom.twist.twist.angular.z = v_roll, v_pitch, v_yaw
+                odom.twist.twist.angular.x, odom.twist.twist.angular.y, odom.twist.twist.angular.z = omega_x, omega_y, omega_z
                 # set covariance
                 # This is all wrong but close enough for now
                 odom.pose.covariance = tuple(self.p_cov.ravel().tolist())
@@ -147,13 +147,15 @@ class ViveTracker(Node):
                 pose.header.frame_id = "vive_world"
                 # set the pose
                 pose.pose.pose.position.x, pose.pose.pose.position.y, pose.pose.pose.position.z = x, y, z
-                pose.pose.pose.orientation.x, pose.pose.pose.orientation.y = qx, qy
-                pose.pose.pose.orientation.z, pose.pose.pose.orientation.w = qz, qw
+                pose.pose.pose.orientation.x = qx
+                pose.pose.pose.orientation.y = qy
+                pose.pose.pose.orientation.z = qz
+                pose.pose.pose.orientation.w = qw
                 # set covariance
                 pose.pose.covariance = tuple(self.p_cov.ravel().tolist())
 
                 # publish all messages
-                if np.any([x, y, z, vx, vy, vz, v_roll, v_pitch, v_yaw]):  # only publish if at least one value != 0
+                if np.any([x, y, z, vx, vy, vz, omega_x, omega_y, omega_z]):  # only publish if at least one value != 0
                     # publish the message
                     try:
                         self.publisher[deviceName + "_odom"].publish(odom)
