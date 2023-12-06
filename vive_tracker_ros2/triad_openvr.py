@@ -1,4 +1,5 @@
 import openvr
+import yaml
 
 from vive_tracker_ros2.vr_tracked_device import VrTrackedDevice
 from vive_tracker_ros2.vr_tracking_reference import VrTrackingReference
@@ -6,7 +7,9 @@ from vive_tracker_ros2.vr_tracking_reference import VrTrackingReference
 
 class TriadOpenVr:
     def __init__(self):
-        # Initialize OpenVR in the
+        with open('vive_config.yaml', 'r') as file:
+            self.vive_config = yaml.safe_load(file)
+
         print("Initializing OpenVR ...")
         self.vr = openvr.init(openvr.VRApplication_Other)
 
@@ -54,11 +57,13 @@ class TriadOpenVr:
                 plural += "s"
             print("Found " + str(len(self.object_names[device_type])) + " " + plural)
             for device in self.object_names[device_type]:
+                device_serial = self.devices[device].serial
                 if device_type == "Tracking Reference":
-                    print("  " + device + " (" + self.devices[device].get_serial() +
-                          ", Mode " + self.devices[device].get_mode() +
-                          ", " + self.devices[device].get_model() +
-                          ")")
+                    device_print_line = "  " + device + " (" + device_serial + ", Mode " + self.devices[
+                        device].get_mode() + ", " + self.devices[device].model + ")"
                 else:
-                    print("  " + device + " (" + self.devices[device].get_serial() +
-                          ", " + self.devices[device].get_model() + ")")
+                    device_print_line = "  " + device + " (" + device_serial + ", " + self.devices[
+                        device].model + ")"
+                if device_serial in self.vive_config['device_alias']:
+                    device_print_line += ", alias: " + self.vive_config['device_alias'][device_serial]
+                print(device_print_line)

@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+import yaml
 
 import rclpy
 import tf2_ros
@@ -40,7 +41,10 @@ class ViveTracker(Node):
 
     def __init__(self):
         super().__init__('vive_tracker_frame')
-        timer_period = 1  # seconds
+        with open('vive_config.yaml', 'r') as file:
+            self.vive_config = yaml.safe_load(file)
+
+        timer_period = 1 / self.vive_config['rate']  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.broadcaster = {}
         self.publisher = {}
@@ -66,29 +70,28 @@ class ViveTracker(Node):
         print("ViveTracker setup complete!")
 
     def timer_callback(self):
-        for deviceName in self.v.devices:
+        for device_name in self.v.devices:
             current_time = self.get_clock().now()
-            device = self.v.devices[deviceName]
-            publish_name_str = device.get_serial().replace("-", "_")
+            device = self.v.devices[device_name]
 
             # skip null devices
-            if 'Null' in device.get_serial():
+            if 'Null' in device.serial:
                 continue
 
-            # get pose
-            flip_z_axis = ("LHR" in device.get_serial())
+            # get original pose
             [x, y, z] = device.get_position()
-            orientation = device.get_orientation(flip_z_axis=flip_z_axis)
+            orientation = device.get_orientation()
+
             [qx, qy, qz, qw] = orientation.as_quat()
 
             # Broadcast the transformation
-            if deviceName not in self.broadcaster:
-                self.broadcaster[deviceName] = tf2_ros.TransformBroadcaster(self)
+            if device.alias not in self.broadcaster:
+                self.broadcaster[device.alias] = tf2_ros.TransformBroadcaster(self)
 
             tfs = TransformStamped()
             tfs.header.stamp = current_time.to_msg()
             tfs.header.frame_id = "vive_world"
-            tfs._child_frame_id = publish_name_str
+            tfs._child_frame_id = device.alias
             tfs.transform.translation.x = x
             tfs.transform.translation.y = y
             tfs.transform.translation.z = z
@@ -97,28 +100,28 @@ class ViveTracker(Node):
             tfs.transform.rotation.z = qz
             tfs.transform.rotation.w = qw
 
-            self.broadcaster[deviceName].sendTransform(tfs)
+            self.broadcaster[device.alias].sendTransform(tfs)
 
             # Publish a topic with euler angles as print out
             [yaw, pitch, roll] = orientation.as_euler("zyx")
 
-            if deviceName not in self.publisher:
-                self.publisher[deviceName] = self.create_publisher(String, publish_name_str, qos_profile_sensor_data)
+            if device.alias not in self.publisher:
+                self.publisher[device.alias] = self.create_publisher(String, device.alias, qos_profile_sensor_data)
 
             string_msg = String()
             string_msg.data = ('  X: ' + str(x) + '  Y: ' + str(y) + '  Z: ' + str(z) +
                                '  Yaw: ' + str(yaw) + '  Pitch: ' + str(pitch) + '  Roll: ' + str(roll))
-            self.publisher[deviceName].publish(string_msg)
+            self.publisher[device.alias].publish(string_msg)
 
             # publish odometry and pose for all devices but the lighthouses
-            if "reference" not in deviceName:
+            if "reference" not in device_name:
                 # create publisher
-                if deviceName + "_odom" not in self.publisher:
-                    self.publisher[deviceName + "_odom"] = self.create_publisher(Odometry, publish_name_str + "_odom",
-                                                                                 qos_profile_sensor_data)
-                    self.publisher[deviceName + "_pose"] = self.create_publisher(PoseWithCovarianceStamped,
-                                                                                 publish_name_str + "_pose",
-                                                                                 qos_profile_sensor_data)
+                if device.alias + "_odom" not in self.publisher:
+                    self.publisher[device.alias + "_odom"] = self.create_publisher(Odometry, device.alias + "_odom",
+                                                                                  qos_profile_sensor_data)
+                    self.publisher[device.alias + "_pose"] = self.create_publisher(PoseWithCovarianceStamped,
+                                                                                  device.alias + "_pose",
+                                                                                  qos_profile_sensor_data)
                 # get twist
                 [vx, vy, vz, omega_x, omega_y, omega_z] = device.get_twist()
 
@@ -133,7 +136,7 @@ class ViveTracker(Node):
                 odom.pose.pose.orientation.z = qz
                 odom.pose.pose.orientation.w = qw
                 # set the velocity
-                odom.child_frame_id = publish_name_str
+                odom.child_frame_id = device.alias
                 odom.twist.twist.linear.x, odom.twist.twist.linear.y, odom.twist.twist.linear.z = vx, vy, vz
                 odom.twist.twist.angular.x, odom.twist.twist.angular.y, odom.twist.twist.angular.z = omega_x, omega_y, omega_z
                 # set covariance
@@ -158,10 +161,10 @@ class ViveTracker(Node):
                 if np.any([x, y, z, vx, vy, vz, omega_x, omega_y, omega_z]):  # only publish if at least one value != 0
                     # publish the message
                     try:
-                        self.publisher[deviceName + "_odom"].publish(odom)
-                        self.publisher[deviceName + "_pose"].publish(pose)
+                        self.publisher[device.alias + "_odom"].publish(odom)
+                        self.publisher[device.alias + "_pose"].publish(pose)
                     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                        warnings.warn("Publishing odometry and pose for device " + deviceName + " failed.")
+                        warnings.warn("Publishing odometry and pose for device " + device.alias + " failed.")
                         continue
 
 

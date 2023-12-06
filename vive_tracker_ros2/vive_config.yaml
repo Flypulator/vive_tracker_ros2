@@ -1,0 +1,14 @@
+# refresh rate for publisher in Hz
+rate: 100
+
+# Define alias for all devices known, by serial number. Used for naming the tracker publisher topics.
+# serial number in format XXX-YYYYYYYY
+device_alias:
+  LHR-AEB9F7F5: drone_tracker
+
+# world frame offset in format: [[x,y,z],[qx,qy,qz,qw]], relative to vive original world frame
+world_frame_pose_offset: [[0,0,0],[0,0,0,1]] # TODO implement
+
+# custom frame offset in format: [[x,y,z],[qx,qy,qz,qw]], in new world frame
+frames_pose_offset:
+  drone_tracker: [[0,0,0],[1,0,0,0]]  # rotated so that z is up

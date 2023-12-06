@@ -10,7 +10,7 @@ from rclpy.qos import qos_profile_sensor_data
 class ViveTrackerTestSubscriber(Node):
     def __init__(self):
         super().__init__('vive_tracker_test_subscriber')
-        topic_name = 'LHR_AEB9F7F5'
+        topic_name = 'drone_tracker'
         self.subscription_string = self.create_subscription(String, topic_name, self.listener_callback_string, qos_profile_sensor_data)
         self.subscription_odom = self.create_subscription(Odometry, f"{topic_name}_odom", self.listener_callback_odom, qos_profile_sensor_data)
         print(f"Subscription to device {topic_name} set up!")
