@@ -55,7 +55,7 @@ class VrTrackedDevice:
         # apply orientation offset from config file
         if self.alias in self.vive_config['frames_pose_offset']:
             [_, offset_quat] = self.vive_config['frames_pose_offset'][self.alias]
-            orientation = Rotation.from_quat(offset_quat) * orientation
+            orientation = orientation * Rotation.from_quat(offset_quat)
         return orientation
 
     def get_twist(self):

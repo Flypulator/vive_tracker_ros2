@@ -12,8 +12,8 @@ device_alias:
 
 
 # world frame offset in format: [[x,y,z],[qx,qy,qz,qw]], relative to vive original world frame
-world_frame_pose_offset: [[1,2,3],[0,0,0,1]] # TODO set world origin
+world_frame_pose_offset: [[4.3918259738905645, 3.158271007752039, 2.519698798080783],[-0.3644634742890691, -0.5970988680764853, -0.6064522308577139, -0.3779616506189792]]
 
 # custom frame offset in format: [[x,y,z],[qx,qy,qz,qw]], in new world frame
 frames_pose_offset:
-  drone_tracker: [[0,0,0],[1,0,0,0]]  # rotated so that z is up
+  drone_tracker: [[0, 0, 0], [0.7071068, -0.7071068, 0, 0]]  # rotated so that z is up and y away from manipulator
