@@ -120,7 +120,7 @@ class ViveTracker(Node):
                                                                                  publish_name_str + "_pose",
                                                                                  qos_profile_sensor_data)
                 # get twist
-                [vx, vy, vz, omega_x, omega_y, omega_z] = device.get_twist(flip_z_axis=flip_z_axis)
+                [vx, vy, vz, omega_x, omega_y, omega_z] = device.get_twist()
 
                 # create odometry message
                 odom = Odometry()

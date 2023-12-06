@@ -52,13 +52,11 @@ class VrTrackedDevice:
             orientation = Rotation.from_euler("X", 180, degrees=True) * orientation
         return orientation
 
-    def get_twist(self, flip_z_axis=False):
+    def get_twist(self):
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                        openvr.k_unMaxTrackedDeviceCount)
         [v_x, v_y, v_z] = pose[self.index].vVelocity
         [omega_x, omega_y, omega_z] = pose[self.index].vAngularVelocity
-        if flip_z_axis:
-            [omega_x, omega_y, omega_z] = [omega_x, -omega_y, -omega_z]
         return [v_x, v_y, v_z, omega_x, omega_y, omega_z]
 
     def is_connected(self):
