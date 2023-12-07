@@ -5,12 +5,13 @@ from scipy.spatial.transform import Rotation
 class Frame:
     def __init__(self, frame_name: str, reference_frame, pos_offset: np.ndarray, rotation: Rotation):
         """
+        object to represent a 3D frame
 
         Args:
-            frame_name: unique identifier of the frame
-            reference_frame:
-            pos_offset:
-            rotation:
+            frame_name: identifier of the frame
+            reference_frame: frame to which pose is relative to
+            pos_offset: position offset to reference_frame
+            rotation: rotation relative to reference_frame
         """
         self.frame_name: str = frame_name
         self.reference_frame = reference_frame
@@ -75,6 +76,30 @@ class Frame:
             rotation=self.ori_in_frame_coordinates(other_frame.rotation, other_frame.reference_frame)
         )
         return relative_frame
+    
+    def vel_in_frame_coordinates(self, vel: np.ndarray, vel_reference_frame) -> np.ndarray:
+        """
+        velocity relative to frame
+
+        Args:
+            vel: original position vector
+            vel_reference_frame: reference frame of original position vector
+        """
+        vel_in_world = vel_reference_frame.world_ori.apply(vel)
+        vel_in_frame = self.world_ori.apply(vel_in_world, inverse=True)
+        return vel_in_frame
+
+    def ang_vel_in_frame_coordinates(self, ang_vel: np.ndarray, ang_vel_reference_frame) -> np.ndarray:
+        """
+        angular velocity relative to frame
+
+        Args:
+            ang_vel: original position vector
+            ang_vel_reference_frame: reference frame of original position vector
+        """
+        ang_vel_in_world = ang_vel_reference_frame.world_ori.apply(ang_vel)
+        ang_vel_in_frame = self.world_ori.apply(ang_vel_in_world, inverse=True)
+        return ang_vel_in_frame
 
     def __eq__(self, other_frame):
         """define equality"""

@@ -19,5 +19,6 @@ world_frame_pose_offset: [[4.63371847005305, 2.7493825552787903, 2.5690277289160
 # custom frame offset
 # format: [[x,y,z],[qx,qy,qz,qw]]
 # orientation offset in new world frame, position offset in body frame
+# !warning!: velocity for position_offset != 0 not correct (no rigid body dynamics)
 frames_pose_offset:
   drone_tracker: [[0, 0, 0], [0.7071068, -0.7071068, 0, 0]]  # rotated so that z is up and y away from manipulator

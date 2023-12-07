@@ -50,16 +50,16 @@ class VrTrackedDevice:
             reference_frame: frame in which device frame will be evaluated
         """
         # get device pose in vive_world frame
-        pose_matrix = self._get_raw_pose_matrix()
-        pos_offset = pose_matrix[:, 3].T
-        rotation = Rotation.from_matrix(pose_matrix[:3, :3])
+        pose_matrix_in_vive_world_frame = self._get_raw_pose_matrix()
+        pos_offset_in_vive_world_frame = pose_matrix_in_vive_world_frame[:, 3].T
+        rotation_in_vive_world_frame = Rotation.from_matrix(pose_matrix_in_vive_world_frame[:3, :3])
 
         # create device frame relative to vive_world
         device_frame_in_vive_world_frame = Frame(
             frame_name=self.alias,
             reference_frame=self.vive_world_frame,
-            pos_offset=pos_offset,
-            rotation=rotation
+            pos_offset=pos_offset_in_vive_world_frame,
+            rotation=rotation_in_vive_world_frame
         )
 
         # apply offset from config file
@@ -75,8 +75,8 @@ class VrTrackedDevice:
             device_frame_with_offset = device_frame_in_vive_world_frame
 
         # return device frame relative to the reference frame specified as func arg
-        device_frame_relative_to_specified = reference_frame.relative_frame(device_frame_with_offset)
-        return device_frame_relative_to_specified
+        device_frame_relative_to_ref_frame = reference_frame.relative_frame(device_frame_with_offset)
+        return device_frame_relative_to_ref_frame
 
     def get_position(self, reference_frame=WorldFrame()):
         """
@@ -98,19 +98,40 @@ class VrTrackedDevice:
         device_frame = self.get_device_frame(reference_frame)
         return device_frame.rotation
 
-    def get_twist(self, reference_frame=WorldFrame()):
+    def get_velocity(self, reference_frame=WorldFrame()):
         """
-        get twist of device
-        TODO not yet implemented, always returns twist in vive_world_frame
+        get velocity of device
 
         Args:
-            reference_frame: frame in which device frame will be evaluated
+            reference_frame: frame in which velocity will be evaluated
         """
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                        openvr.k_unMaxTrackedDeviceCount)
-        [v_x, v_y, v_z] = pose[self.index].vVelocity
-        [omega_x, omega_y, omega_z] = pose[self.index].vAngularVelocity
-        return [v_x, v_y, v_z, omega_x, omega_y, omega_z]
+        vel_in_vive_world_frame = np.array([velElem for velElem in pose[self.index].vVelocity])
+
+        vel_in_ref_frame = reference_frame.vel_in_frame_coordinates(
+            vel_in_vive_world_frame, self.vive_world_frame)
+
+        return vel_in_ref_frame
+
+    def get_angular_velocity(self, reference_frame=None):
+        """
+        get angular velocity of device. Default reference frame is moving body frame of device.
+
+        Args:
+            reference_frame: frame in which angular velocity will be evaluated. Default is moving body frame of device
+        """
+        if reference_frame is None:
+            reference_frame = self.get_device_frame(WorldFrame())
+
+        pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
+                                                       openvr.k_unMaxTrackedDeviceCount)
+        ang_vel_in_vive_world_frame = np.array([velElem for velElem in pose[self.index].vAngularVelocity])
+
+        ang_vel_in_ref_frame = reference_frame.ang_vel_in_frame_coordinates(
+            ang_vel_in_vive_world_frame, self.vive_world_frame)
+
+        return ang_vel_in_ref_frame
 
     def is_connected(self):
         """check connectivity of device via OpenVR API"""
