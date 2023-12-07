@@ -66,7 +66,6 @@ class ViveTracker(Node):
             quit()
 
         self.v.print_discovered_objects()
-
         print("ViveTracker setup complete!")
 
     def timer_callback(self):
@@ -79,8 +78,8 @@ class ViveTracker(Node):
                 continue
 
             # get pose
-            [x, y, z] = device.get_position()
-            orientation = device.get_orientation()
+            [x, y, z] = device.get_position(reference_frame=self.v.vive_world_frame)
+            orientation = device.get_orientation(reference_frame=self.v.vive_world_frame)
             [qx, qy, qz, qw] = orientation.as_quat()
 
             # Broadcast the transformation
