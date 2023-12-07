@@ -19,10 +19,12 @@ class VrTrackedDevice:
 
     @property
     def serial(self):
+        """read out device serial from API"""
         return self.vr.getStringTrackedDeviceProperty(self.index, openvr.Prop_SerialNumber_String)
 
     @property
     def alias(self):
+        """assign an alias for device, uses config file or device serial"""
         if self.serial in self.vive_config['device_alias']:
             return self.vive_config['device_alias'][self.serial]
         else:
@@ -43,6 +45,9 @@ class VrTrackedDevice:
         """
         get full pose of device as frame object, relative to specified reference frame,
         with offset from vive_config.yaml applied
+
+        Args:
+            reference_frame: frame in which device frame will be evaluated
         """
         # get device pose in vive_world frame
         pose_matrix = self._get_raw_pose_matrix()
@@ -51,36 +56,56 @@ class VrTrackedDevice:
 
         # create device frame relative to vive_world
         device_frame_in_vive_world_frame = Frame(
-            self.alias,
-            self.vive_world_frame,
-            pos_offset,
-            rotation
+            frame_name=self.alias,
+            reference_frame=self.vive_world_frame,
+            pos_offset=pos_offset,
+            rotation=rotation
         )
+
         # apply offset from config file
         if self.alias in self.vive_config['frames_pose_offset']:
             [offset_pos, offset_quat] = self.vive_config['frames_pose_offset'][self.alias]
-            device_frame_in_vive_world_frame = Frame(
-                f"{self.alias}_with_offset",
-                device_frame_in_vive_world_frame,
-                offset_pos, Rotation.from_quat(offset_quat)
+            device_frame_with_offset = Frame(
+                frame_name=f"{self.alias}_with_offset",
+                reference_frame=device_frame_in_vive_world_frame,
+                pos_offset=offset_pos,
+                rotation=Rotation.from_quat(offset_quat)
             )
+        else:
+            device_frame_with_offset = device_frame_in_vive_world_frame
 
         # return device frame relative to the reference frame specified as func arg
-        device_frame_relative_to_specified = reference_frame.relative_frame(device_frame_in_vive_world_frame)
+        device_frame_relative_to_specified = reference_frame.relative_frame(device_frame_with_offset)
         return device_frame_relative_to_specified
 
     def get_position(self, reference_frame=WorldFrame()):
-        """get position of device in specified reference frame, with offset from vive_config.yaml applied"""
+        """
+        get position of device in specified reference frame, with offset from vive_config.yaml applied
+
+        Args:
+            reference_frame: frame in which device frame will be evaluated
+        """
         device_frame = self.get_device_frame(reference_frame)
         return device_frame.pos_offset
 
     def get_orientation(self, reference_frame=WorldFrame()):
-        """get orientation of device in specified reference frame, with offset from vive_config.yaml applied"""
+        """
+        get orientation of device in specified reference frame, with offset from vive_config.yaml applied
+
+        Args:
+            reference_frame: frame in which device frame will be evaluated
+        """
         device_frame = self.get_device_frame(reference_frame)
         return device_frame.rotation
 
     def get_twist(self, reference_frame=WorldFrame()):
-        """get twist of device"""
+        """
+        get twist of device
+        TODO not yet implemented, always returns twist in vive_world_frame
+
+        Args:
+            reference_frame: frame in which device frame will be evaluated
+        """
         pose = self.vr.getDeviceToAbsoluteTrackingPose(openvr.TrackingUniverseStanding, 0,
                                                        openvr.k_unMaxTrackedDeviceCount)
         [v_x, v_y, v_z] = pose[self.index].vVelocity
@@ -88,6 +113,7 @@ class VrTrackedDevice:
         return [v_x, v_y, v_z, omega_x, omega_y, omega_z]
 
     def is_connected(self):
+        """check connectivity of device via OpenVR API"""
         tracking = self.vr.isTrackedDeviceConnected(self.index)
         return tracking
 
