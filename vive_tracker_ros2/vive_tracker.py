@@ -11,6 +11,7 @@ from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import String
+from vive_tracker_ros2.frame import WorldFrame
 
 
 class ViveTracker(Node):
@@ -78,8 +79,10 @@ class ViveTracker(Node):
                 continue
 
             # get pose
-            [x, y, z] = device.get_position(reference_frame=self.v.vive_world_frame)
-            orientation = device.get_orientation(reference_frame=self.v.vive_world_frame)
+            # reference_frame = self.v.vive_world_frame
+            reference_frame = WorldFrame()
+            [x, y, z] = device.get_position(reference_frame=reference_frame)
+            orientation = device.get_orientation(reference_frame=reference_frame)
             [qx, qy, qz, qw] = orientation.as_quat()
 
             # Broadcast the transformation
@@ -88,7 +91,7 @@ class ViveTracker(Node):
 
             tfs = TransformStamped()
             tfs.header.stamp = current_time.to_msg()
-            tfs.header.frame_id = "vive_world"  # TODO: change to "world"
+            tfs.header.frame_id = reference_frame.frame_name
             tfs._child_frame_id = device.alias
             tfs.transform.translation.x = x
             tfs.transform.translation.y = y
@@ -126,7 +129,7 @@ class ViveTracker(Node):
                 # create odometry message
                 odom = Odometry()
                 odom.header.stamp = current_time.to_msg()
-                odom.header.frame_id = "vive_world"
+                odom.header.frame_id = reference_frame.frame_name
                 # set the pose
                 odom.pose.pose.position.x, odom.pose.pose.position.y, odom.pose.pose.position.z = x, y, z
                 odom.pose.pose.orientation.x = qx
@@ -145,7 +148,7 @@ class ViveTracker(Node):
                 # Create a pose with covariance stamped topic
                 pose = PoseWithCovarianceStamped()
                 pose.header.stamp = current_time.to_msg()
-                pose.header.frame_id = "vive_world"
+                pose.header.frame_id = reference_frame.frame_name
                 # set the pose
                 pose.pose.pose.position.x, pose.pose.pose.position.y, pose.pose.pose.position.z = x, y, z
                 pose.pose.pose.orientation.x = qx

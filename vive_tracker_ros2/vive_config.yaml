@@ -14,7 +14,7 @@ device_alias:
 # world frame offset
 # format: [[x,y,z],[qx,qy,qz,qw]]
 # relative to vive_world frame (sits in one lighthouse)
-world_frame_pose_offset: [[4.3918259738905645, 3.158271007752039, 2.519698798080783],[-0.3644634742890691, -0.5970988680764853, -0.6064522308577139, -0.3779616506189792]]
+world_frame_pose_offset: [[4.63371847005305, 2.7493825552787903, 2.569027728916084],[-0.3872827438303025, -0.5861317305613614, -0.5859653900332389, -0.4038641262152538]]
 
 # custom frame offset
 # format: [[x,y,z],[qx,qy,qz,qw]]

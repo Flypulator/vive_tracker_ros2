@@ -8,14 +8,19 @@ from vive_tracker_ros2.vr_devices import VrTrackedDevice, VrTrackingReference
 
 class TriadOpenVr:
     def __init__(self):
+        # read vive_world offset from config file and create frame
         with open('vive_config.yaml', 'r') as file:
             self.vive_config = yaml.safe_load(file)
-        [world_offset_pos, world_offset_quat] = self.vive_config['world_frame_pose_offset']
-        world_offset_ori = Rotation.from_quat(world_offset_quat)
-        vive_world_offset_pos = -world_offset_ori.apply(world_offset_pos, inverse=True)
-        vive_world_offset_ori = world_offset_ori.inv()
-        self.vive_world_frame = Frame("vive_world", WorldFrame(), vive_world_offset_pos, vive_world_offset_ori)
+        [vive_world_offset_pos, world_offset_quat] = self.vive_config['world_frame_pose_offset']
+        vive_world_offset_ori = Rotation.from_quat(world_offset_quat)
+        self.vive_world_frame = Frame(
+            frame_name="vive_world",
+            reference_frame=WorldFrame(),
+            pos_offset=vive_world_offset_pos,
+            rotation=vive_world_offset_ori
+        )
 
+        # init openvr
         print("Initializing OpenVR ...")
         self.vr = openvr.init(openvr.VRApplication_Other)
 
