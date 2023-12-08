@@ -28,11 +28,11 @@ Have python3, pip and virtualenv installed on your system
 
 3. Make a Symbolic Link from libudev.so.0 to libudev.so.1 for SteamVR to use. 
 
-`sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0`
+   `sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0`
 
-5. Disable the headset requirement and enable a null (simulated) headset:
+4. Disable the headset requirement and enable a null (simulated) headset:
 
-`gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
+   `gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
 
    1. Change the third line from `"requireHmd" : true,` to `"requireHmd" : false,`
 
@@ -40,26 +40,26 @@ Have python3, pip and virtualenv installed on your system
    
    3. Open `default.vrsettings`
 
-`gedit ~/.steam/steam/steamapps/common/SteamVR/drivers/null/resources/settings/default.vrsettings`
+   `gedit ~/.steam/steam/steamapps/common/SteamVR/drivers/null/resources/settings/default.vrsettings`
 
    1. Set `enable` (line 3) to `true` in null driver to enable it.
 
-  [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
+   [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
 
-7. Download this project in your colcon workspace.
-```
-cd ~/ros2_ws/src/
-git clone https://github.com/moon-wreckers/vive_tracker.git
-```
+5. Download this project to your computer, for example to your colcon workspace.
+   ```
+   cd ~/ros2_ws/src/
+   git clone https://github.com/moon-wreckers/vive_tracker.git
+   ```
 
 6. Create python venv and install dependencies
-```
-# install environment manager poetry
-pip install poetry
-# create the poetry enviroment with all necessary packages
-cd ~/ros2_ws/vive_tracker_ros2
-poetry install
-```
+   ```
+   # install environment manager poetry
+   pip install poetry
+   # create the poetry enviroment with all necessary packages
+   cd ~/ros2_ws/src/vive_tracker_ros2
+   poetry install
+   ```
 
 # Usage
 1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all of the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
@@ -77,16 +77,16 @@ poetry install
      3. If you're using 2 Base Stations with a sync cable, ensure they're set to modes A and B.
 
 5. Run tracking ROS2 node.
-```
-cd ~/ros2_ws/vive_tracker_ros2
-poetry run python run.py
-``` 
+   ```
+   cd ~/ros2_ws/src/vive_tracker_ros2
+   poetry run python run.py
+   ``` 
 
-7. (Optional) Start RViz in another terminal with `rviz2`
+6. (Optional) Start RViz in another terminal with `rviz2`
 
-8. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
+7. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
 
-9. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
+8. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
 
 
 # Command Line
