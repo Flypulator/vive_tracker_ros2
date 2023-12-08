@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "vive-tracker-ros2"
+version = "1.0.0"
+description = "ROS2 Node that publishes pose data from HTC Vive Tracker, adaption of https://github.com/moon-wreckers/vive_tracker.git"
+authors = ["Tobias Spens <tobias.spens@tu-dresden.de>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "*"
+scipy = "*"
+openvr = "*"
+PyYAML = "*"
+
+[tool.poetry.group.dev.dependencies]
+launch = {path = "/opt/ros/foxy/lib/python3.8/site-packages"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

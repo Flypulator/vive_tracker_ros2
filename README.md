@@ -8,7 +8,7 @@ Up-to-date graphics drivers
 
 SteamVR requires >4GB disk space
 
-Have python3 and pip installed on your system
+Have python3, pip and virtualenv installed on your system
 
 
 # Installation Instructions
@@ -30,10 +30,6 @@ Have python3 and pip installed on your system
 
 `sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0`
 
-4. Install pyopenvr
-
-`sudo pip install -U pip openvr`
-
 5. Disable the headset requirement and enable a null (simulated) headset:
 
 `gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
@@ -49,17 +45,20 @@ Have python3 and pip installed on your system
    1. Set `enable` (line 3) to `true` in null driver to enable it.
 
   [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
-  
-6. Install this project in your colcon workspace.
 
+7. Download this project in your colcon workspace.
 ```
-cd ~/colcon_ws/src/
+cd ~/ros2_ws/src/
 git clone https://github.com/moon-wreckers/vive_tracker.git
-cd ~/colcon_ws
-colcon build --select-packages vive_tracker_ros2
 ```
 
-7. 
+6. Create python venv and install dependencies
+```
+# install environment manager poetry
+pip install poetry
+# create poetry enviroment
+
+```
 
 # Usage
 1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all of the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
@@ -76,17 +75,22 @@ colcon build --select-packages vive_tracker_ros2
      
      3. If you're using 2 Base Stations with a sync cable, ensure they're set to modes A and B.
 
-5. Run this ROS2 node. 
-
+5. Run tracking ROS2 node.
 ```
 source ~/ros2_ws/install/setup.bash
-ros2 run vive_tracker_ros2
+ros2 run vive_tracker_ros2 vive_tracker
 ``` 
-6. (Optional) Start RViz in another terminal with `rviz2`
 
-7. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
+6. (Optional) Also broadcast vive_world frame
+```
+ros2 run vive_tracker_ros2 vive_world
+``` 
 
-8. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
+7. (Optional) Start RViz in another terminal with `rviz2`
+
+8. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
+
+9. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
 
 
 # Command Line
