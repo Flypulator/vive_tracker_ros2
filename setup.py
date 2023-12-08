@@ -4,7 +4,7 @@ package_name = 'vive_tracker_ros2'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='1.0.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -13,15 +13,17 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='flypulator',
+    author='Tobias Spens',
+    author_email='tobias.spens@tu-dresden.de',
+    maintainer='Flypulator Project @ TU Dresden',
     maintainer_email='flypulator@tu-dresden.de',
     description='adaption of https://github.com/moon-wreckers/vive_tracker to ROS2',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'vive_tracker = vive-tracker-ros2.vive_tracker:main',
-            'vive_world = vive-tracker-ros2.vive_world:main',
+            'vive_tracker = vive_tracker_ros2.vive_tracker:main',
+            'vive_world = vive_tracker_ros2.vive_world:main',
         ],
     },
 )
