@@ -17,6 +17,7 @@
   <depend>pyyaml</depend>
   <depend>numpy</depend>
   <depend>scipy</depend>
+  <depend>openvr</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
