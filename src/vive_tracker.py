@@ -1,3 +1,4 @@
+import os
 import warnings
 
 import numpy as np
@@ -5,13 +6,14 @@ import yaml
 
 import rclpy
 import tf2_ros
-import vive_tracker_ros2.triad_openvr
+import src.triad_openvr
+from src import config_file_util
 from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import String
-from vive_tracker_ros2.frame import WorldFrame
+from src.frame import WorldFrame
 
 
 class ViveTracker(Node):
@@ -42,8 +44,7 @@ class ViveTracker(Node):
 
     def __init__(self):
         super().__init__('vive_tracker_frame')
-        with open('vive_config.yaml', 'r') as file:
-            self.vive_config = yaml.safe_load(file)
+        self.vive_config = config_file_util.get_config()
 
         timer_period = 1 / self.vive_config['rate']  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -51,7 +52,7 @@ class ViveTracker(Node):
         self.publisher = {}
 
         try:
-            self.v = vive_tracker_ros2.triad_openvr.TriadOpenVr()
+            self.v = src.triad_openvr.TriadOpenVr()
         except Exception as ex:
             if (type(ex).__name__ == 'OpenVRError') and (
                     ex.args[0] == 'VRInitError_Init_HmdNotFoundPresenceFailed (error number 126)'):

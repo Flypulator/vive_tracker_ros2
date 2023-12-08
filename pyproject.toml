@@ -12,9 +12,9 @@ numpy = "*"
 scipy = "*"
 openvr = "*"
 PyYAML = "*"
-
-[tool.poetry.group.dev.dependencies]
-launch = {path = "/opt/ros/foxy/lib/python3.8/site-packages"}
+#
+#[tool.poetry.group.dev.dependencies]
+#launch = {path = "/opt/ros/foxy/lib/python3.8/site-packages/rclpy"}
 
 [build-system]
 requires = ["poetry-core"]

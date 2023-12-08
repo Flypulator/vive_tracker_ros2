@@ -1,9 +1,9 @@
 import numpy as np
 import openvr
-import yaml
 from scipy.spatial.transform import Rotation
 
-from vive_tracker_ros2.frame import WorldFrame, Frame
+from src import config_file_util
+from src.frame import WorldFrame, Frame
 
 
 class VrTrackedDevice:
@@ -14,8 +14,7 @@ class VrTrackedDevice:
         self.vive_world_frame = vive_world_frame
 
         # load config file
-        with open('vive_config.yaml', 'r') as file:
-            self.vive_config = yaml.safe_load(file)
+        self.vive_config = config_file_util.get_config()
 
     @property
     def serial(self):

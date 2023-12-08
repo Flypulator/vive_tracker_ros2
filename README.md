@@ -56,8 +56,9 @@ git clone https://github.com/moon-wreckers/vive_tracker.git
 ```
 # install environment manager poetry
 pip install poetry
-# create poetry enviroment
-
+# create the poetry enviroment with all necessary packages
+cd ~/ros2_ws/vive_tracker_ros2
+poetry install
 ```
 
 # Usage
@@ -77,13 +78,8 @@ pip install poetry
 
 5. Run tracking ROS2 node.
 ```
-source ~/ros2_ws/install/setup.bash
-ros2 run vive_tracker_ros2 vive_tracker
-``` 
-
-6. (Optional) Also broadcast vive_world frame
-```
-ros2 run vive_tracker_ros2 vive_world
+cd ~/ros2_ws/vive_tracker_ros2
+poetry run python run.py
 ``` 
 
 7. (Optional) Start RViz in another terminal with `rviz2`

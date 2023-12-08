@@ -10,7 +10,7 @@ class ViveWorld(Node):
 
     def __init__(self):
         super().__init__('vive_world')
-        with open('vive_config.yaml', 'r') as file:
+        with open('../vive_config.yaml', 'r') as file:
             self.vive_config = yaml.safe_load(file)
 
         timer_period = 1 / self.vive_config['rate']  # seconds

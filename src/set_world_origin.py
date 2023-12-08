@@ -1,7 +1,7 @@
 import fileinput
 import re
 
-import vive_tracker_ros2.triad_openvr
+import src.triad_openvr
 
 
 def set_world_origin(device_name):
@@ -11,7 +11,7 @@ def set_world_origin(device_name):
     Args:
         device_name: name, serial or alias of tracker to use as reference for world origin
     """
-    v = vive_tracker_ros2.triad_openvr.TriadOpenVr()
+    v = src.triad_openvr.TriadOpenVr()
     v.print_discovered_objects()
 
     if device_name in v.devices:
@@ -29,7 +29,7 @@ def set_world_origin(device_name):
 
     search_exp = "world_frame_pose_offset:.*"
     replace_exp = f"world_frame_pose_offset: [{world_offset_pos},{world_offset_orientation.as_quat().tolist()}]"
-    for line in fileinput.input('vive_config.yaml', inplace=True):
+    for line in fileinput.input('../vive_config.yaml', inplace=True):
         searched = re.search(search_exp, line)
         newline = (replace_exp if searched is not None else line).rstrip()
         print(newline)

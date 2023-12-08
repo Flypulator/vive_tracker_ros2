@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from vive_tracker_ros2.frame import Frame, WorldFrame
+from src.frame import Frame, WorldFrame
 
 
 class TestFrame:

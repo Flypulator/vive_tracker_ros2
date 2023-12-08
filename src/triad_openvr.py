@@ -1,16 +1,17 @@
+import os
+
 import openvr
-import yaml
 from scipy.spatial.transform import Rotation
 
-from vive_tracker_ros2.frame import Frame, WorldFrame
-from vive_tracker_ros2.vr_devices import VrTrackedDevice, VrTrackingReference
+from src import config_file_util
+from src.frame import Frame, WorldFrame
+from src.vr_devices import VrTrackedDevice, VrTrackingReference
 
 
 class TriadOpenVr:
     def __init__(self):
         # read vive_world offset from config file and create frame
-        with open('vive_config.yaml', 'r') as file:
-            self.vive_config = yaml.safe_load(file)
+        self.vive_config = config_file_util.get_config()
         [vive_world_offset_pos, world_offset_quat] = self.vive_config['world_frame_pose_offset']
         vive_world_offset_ori = Rotation.from_quat(world_offset_quat)
         self.vive_world_frame = Frame(
