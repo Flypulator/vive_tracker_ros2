@@ -1,0 +1,27 @@
+# ros2 python packages location
+ros2_packages_path: /opt/ros/humble/lib/python3.10/site-packages
+
+# refresh rate for publisher in Hz
+rate: 100
+
+# Define alias for all devices known, by serial number. Used for naming the tracker publisher topics.
+# serial number in format XXX-YYYYYYYY
+device_alias:
+  LHR-AEB9F7F5: drone_tracker
+  LHB-65A6F476: lighthouse_pc
+  LHB-F77C4290: lighthouse_room
+  LHB-F00011C8: lighthouse_corner
+  LHB-9CF7D567: lighthouse_door
+
+
+# world frame offset
+# format: [[x,y,z],[qx,qy,qz,qw]]
+# relative to vive_world frame (sits in one lighthouse)
+world_frame_pose_offset: [[4.63371847005305, 2.7493825552787903, 2.569027728916084],[-0.3872827438303025, -0.5861317305613614, -0.5859653900332389, -0.4038641262152538]]
+
+# custom frame offset
+# format: [[x,y,z],[qx,qy,qz,qw]]
+# orientation offset in new world frame, position offset in body frame
+# !warning!: velocity for position_offset != 0 not correct (no rigid body dynamics)
+frames_pose_offset:
+  drone_tracker: [[0, 0, 0], [0.7071068, -0.7071068, 0, 0]]  # rotated so that z is up and y away from manipulator
