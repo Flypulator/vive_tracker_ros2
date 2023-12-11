@@ -8,7 +8,7 @@ Up-to-date graphics drivers
 
 SteamVR requires >4GB disk space
 
-Have python3 installed on your system
+Have python3 and ros2 installed on your system
 
 
 # Installation Instructions
@@ -50,9 +50,9 @@ Have python3 installed on your system
 
    [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
 
-6. Download this project to your computer, for example to your colcon workspace.
+6. Download this project to your computer in a directory of your choice (in the following `~/ros2_steamvr` is used).
    ```
-   cd ~/ros2_ws/src/
+   cd ~/ros2_steamvr
    git clone https://github.com/moon-wreckers/vive_tracker.git
    ```
 
@@ -62,18 +62,25 @@ Have python3 installed on your system
       sudo apt install pipx
       pipx install poetry
       ```
-   2. create the poetry enviroment with all necessary packages
+   2. create the poetry environment with all necessary packages
       ```
-      cd ~/ros2_ws/src/vive_tracker_ros2
+      cd ~/ros2_steamvr/vive_tracker_ros2
       poetry install
       ```
 
 8. Set configuration of vive_tracker_ros2 Python Node
-   1. open `~/ros2_ws/src/vive_tracker_ros2/vive_config.yaml`
+   1. open `~/ros2_steamvr/vive_tracker_ros2/vive_config.yaml`
    2. set property `ros2_packages_path` to the python package location of your ROS2 installation
 
+9. (Optional) set bash alias
+   1. open ~/.bashrc
+   2. add the following line and save:
+      ```
+      alias run_vive_tracker_ros2="cd ~/ros2_steamvr/vive_tracker_ros2 && poetry run python run.py"
+      ```
+
 # Usage
-1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all of the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
+1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
 
 2. Turn on the tracker with its button, and make sure that its wireless USB dongle is plugged in to your computer. If the tracker shows up in the SteamVR overlay skip to step 4.
 
@@ -88,8 +95,14 @@ Have python3 installed on your system
      3. If you're using 2 Base Stations with a sync cable, ensure they're set to modes A and B.
 
 5. Run tracking ROS2 node.
+
+   With bash alias:
    ```
-   cd ~/ros2_ws/src/vive_tracker_ros2
+   run_vive_tracker_ros2
+   ```
+   or directly:
+   ```
+   cd ~/ros2_steamvr/vive_tracker_ros2
    poetry run python run.py
    ``` 
 

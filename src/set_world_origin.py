@@ -2,6 +2,7 @@ import fileinput
 import re
 
 import src.triad_openvr
+from src.config_file_util import get_config_file_path
 
 
 def set_world_origin(device_name):
@@ -20,6 +21,8 @@ def set_world_origin(device_name):
         device = [v.devices[it_device] for it_device in v.devices if v.devices[it_device].alias == device_name][0]
     elif device_name in [v.devices[it_device].serial for it_device in v.devices]:
         device = [v.devices[it_device] for it_device in v.devices if v.devices[it_device].serial == device_name][0]
+    else:
+        raise RuntimeError("Device not found!")
 
     ref_position = device.get_position()
     ref_orientation = device.get_orientation()
@@ -29,7 +32,8 @@ def set_world_origin(device_name):
 
     search_exp = "world_frame_pose_offset:.*"
     replace_exp = f"world_frame_pose_offset: [{world_offset_pos},{world_offset_orientation.as_quat().tolist()}]"
-    for line in fileinput.input('../vive_config.yaml', inplace=True):
+    config_path = get_config_file_path()
+    for line in fileinput.input(config_path, inplace=True):
         searched = re.search(search_exp, line)
         newline = (replace_exp if searched is not None else line).rstrip()
         print(newline)

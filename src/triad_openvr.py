@@ -1,5 +1,3 @@
-import os
-
 import openvr
 from scipy.spatial.transform import Rotation
 
