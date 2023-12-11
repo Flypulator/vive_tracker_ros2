@@ -71,6 +71,7 @@ Have python3 and ros2 installed on your system
 8. Set configuration of vive_tracker_ros2 Python Node
    1. open `~/ros2_steamvr/vive_tracker_ros2/vive_config.yaml`
    2. set property `ros2_packages_path` to the python package location of your ROS2 installation
+   3. (Optionally) define node refresh rate and set alias for your trackers
 
 9. (Optional) set bash alias
    1. open ~/.bashrc
@@ -94,7 +95,17 @@ Have python3 and ros2 installed on your system
      
      3. If you're using 2 Base Stations with a sync cable, ensure they're set to modes A and B.
 
-5. Run tracking ROS2 node.
+5. (Optional) Set world origin
+   
+   You can set the world origin by placing a tracker to the desired position:
+   1. Open the script `set_world_origin.py` and change the variable `tracker_name` to the tracker whose current pose should define your world frame.
+   2. Run `set_world_origin.py` by calling:
+      ```
+      cd ~/ros2_steamvr/vive_tracker_ros2
+      poetry run python set_world_origin.py
+      ``` 
+
+6. Run tracking ROS2 node.
 
    With bash alias:
    ```
@@ -106,11 +117,11 @@ Have python3 and ros2 installed on your system
    poetry run python run.py
    ``` 
 
-6. (Optional) Start RViz in another terminal with `rviz2`
+7. (Optional) Start RViz in another terminal with `rviz2`
 
-7. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
+8. (Optional) In the lower left corner of RViz click on `Add`, and scroll down the Add menu to add a `TF`. If all went well you should now be able to see the tracker moving in RViz. 
 
-8. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
+9. If for some reason it isn't working, check to ensure that the Tracker is turned on, SteamVR is still running, the tracker icon is green, and the vive_tracker ros2 node is still running.
 
 
 # Command Line

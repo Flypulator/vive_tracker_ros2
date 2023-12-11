@@ -45,4 +45,6 @@ def set_world_origin(device_name):
 
 
 if __name__ == '__main__':
-    set_world_origin("drone_tracker")
+    # set name of the tracker that will be used as a reference pose for the world frame
+    tracker_name = "drone_tracker"
+    set_world_origin(tracker_name)
