@@ -8,7 +8,7 @@ Up-to-date graphics drivers
 
 SteamVR requires >4GB disk space
 
-Have python3, pip and virtualenv installed on your system
+Have python3 installed on your system
 
 
 # Installation Instructions
@@ -20,17 +20,21 @@ Have python3, pip and virtualenv installed on your system
       4. (Recommended) Save your credentials while logging in, and once you do log in open the `Steam` Menu item in the top left corner and select `Go Offline`. This prevents Steam from updating every time you use the Vive Tracker. 
 
 2. Install SteamVR. 
-   1. Click Library
-   2. Click VR
-   3. On the left you should now see SteamVR. Add to library.
-   4. Before installing, left click on SteamVR and click on `Properties`
-   5. In Tab `Betas` under `Beta Participation` select `linux_v1.14`
+   1. Click Library -> VR
+   2. On the left you should now see SteamVR. Add to library.
+   3. Before installing, left click on SteamVR and click on `Properties`
+   4. In Tab `Betas` under `Beta Participation` select `linux_v1.14`
 
-3. Make a Symbolic Link from libudev.so.0 to libudev.so.1 for SteamVR to use. 
+3. Install udev rules to be able to use USB dongles
+
+   1. Download and follow instructions at https://gitlab.com/fabiscafe/game-devices-udev
+   2. Download https://github.com/ValveSoftware/steam-devices and do the same with these files
+
+4. Make a Symbolic Link from libudev.so.0 to libudev.so.1 for SteamVR to use. 
 
    `sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0`
 
-4. Disable the headset requirement and enable a null (simulated) headset:
+5. Disable the headset requirement and enable a null (simulated) headset:
 
    `gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
 
@@ -46,20 +50,27 @@ Have python3, pip and virtualenv installed on your system
 
    [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
 
-5. Download this project to your computer, for example to your colcon workspace.
+6. Download this project to your computer, for example to your colcon workspace.
    ```
    cd ~/ros2_ws/src/
    git clone https://github.com/moon-wreckers/vive_tracker.git
    ```
 
-6. Create python venv and install dependencies
-   ```
-   # install environment manager poetry
-   pip install poetry
-   # create the poetry enviroment with all necessary packages
-   cd ~/ros2_ws/src/vive_tracker_ros2
-   poetry install
-   ```
+7. Create python venv and install dependencies
+   1. install environment manager *poetry* with *pipx* (if *pipx* does not work you can also use pip, but installing a python package with normal pip and without a virtual enviroment will change your system python which can be dangerous)
+      ```
+      sudo apt install pipx
+      pipx install poetry
+      ```
+   2. create the poetry enviroment with all necessary packages
+      ```
+      cd ~/ros2_ws/src/vive_tracker_ros2
+      poetry install
+      ```
+
+8. Set configuration of vive_tracker_ros2 Python Node
+   1. open `~/ros2_ws/src/vive_tracker_ros2/vive_config.yaml`
+   2. set property `ros2_packages_path` to the python package location of your ROS2 installation
 
 # Usage
 1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all of the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
