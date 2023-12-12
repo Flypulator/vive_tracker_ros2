@@ -8,6 +8,7 @@ rate: 100
 # serial number in format XXX-YYYYYYYY
 device_alias:
   LHR-AEB9F7F5: drone_tracker
+  LHR-760234E2: calib_tracker
   LHB-65A6F476: lighthouse_pc
   LHB-F77C4290: lighthouse_room
   LHB-F00011C8: lighthouse_corner
@@ -17,7 +18,7 @@ device_alias:
 # world frame offset
 # format: [[x,y,z],[qx,qy,qz,qw]]
 # relative to vive_world frame (sits in one lighthouse)
-world_frame_pose_offset: [[4.63371847005305, 2.7493825552787903, 2.569027728916084],[-0.3872827438303025, -0.5861317305613614, -0.5859653900332389, -0.4038641262152538]]
+world_frame_pose_offset: [[-3.137592328085066, 1.9419741715120273, 3.462835952609384],[-0.30322417921355704, 0.6387954668356981, 0.6528300701075964, -0.2716769188829595]]
 
 # custom frame offset
 # format: [[x,y,z],[qx,qy,qz,qw]]
@@ -25,3 +26,4 @@ world_frame_pose_offset: [[4.63371847005305, 2.7493825552787903, 2.5690277289160
 # !warning!: velocity for position_offset != 0 not correct (no rigid body dynamics)
 frames_pose_offset:
   drone_tracker: [[0, 0, 0], [0.7071068, -0.7071068, 0, 0]]  # rotated so that z is up and y away from manipulator
+  calib_tracker: [[0, 0, 0], [0.7071068, -0.7071068, 0, 0]]  # rotated so that z is up and y away from manipulator

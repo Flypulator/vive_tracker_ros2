@@ -24,8 +24,8 @@ def set_world_origin(device_name):
     else:
         raise RuntimeError("Device not found!")
 
-    ref_position = device.get_position()
-    ref_orientation = device.get_orientation()
+    ref_position = device.get_position(reference_frame=v.vive_world_frame)
+    ref_orientation = device.get_orientation(reference_frame=v.vive_world_frame)
 
     world_offset_pos = (-ref_orientation.apply(ref_position, inverse=True)).tolist()
     world_offset_orientation = ref_orientation.inv()
@@ -46,5 +46,5 @@ def set_world_origin(device_name):
 
 if __name__ == '__main__':
     # set name of the tracker that will be used as a reference pose for the world frame
-    tracker_name = "drone_tracker"
+    tracker_name = "calib_tracker"
     set_world_origin(tracker_name)
