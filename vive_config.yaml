@@ -2,7 +2,8 @@
 ros2_packages_path: /opt/ros/humble/lib/python3.10/site-packages
 
 # refresh rate for publisher in Hz
-rate: 100
+# maximum is around 200Hz, lower rates result in a more steady rate with less jitter
+rate: 150
 
 # Define alias for all devices known, by serial number. Used for naming the tracker publisher topics.
 # serial number in format XXX-YYYYYYYY
