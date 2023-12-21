@@ -1,6 +1,6 @@
 This ROS2 Node publishes pose data from HTC Vive Tracker on Ubuntu 22.04. 
 
-### Note: This software depends on SteamVR on Ubuntu. Be advised that SteamVR is not fully supported on Ubuntu and may not install properly with your version of Ubuntu/graphics drivers/hardware. I recommend you try to get SteamVR installed on your computer before considering this node for your project. 
+### Note: This software depends on SteamVR on Ubuntu. Be advised that SteamVR is not fully supported on Ubuntu and may not install properly with your version of Ubuntu/graphics drivers/hardware. It is recommended to try to get SteamVR installed on your computer before considering using this library. 
 
 # Prerequisites
 
@@ -8,7 +8,7 @@ Up-to-date graphics drivers
 
 SteamVR requires >4GB disk space
 
-Have python3 and ros2 installed on your system
+Have git, python3 and ros2 installed on your system
 
 
 # Installation Instructions
@@ -35,18 +35,20 @@ Have python3 and ros2 installed on your system
    `sudo ln -s /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0`
 
 5. Disable the headset requirement and enable a null (simulated) headset:
-
-   `gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
-
-   1. Change the third line from `"requireHmd" : true,` to `"requireHmd" : false,`
-
-   2. Add `"activateMultipleDrivers"` : true, and add the line `"forcedDriver": "null"` beneath it.
+   1. open general settings file in text editor:
    
-   3. Open `default.vrsettings`
+      `gedit ~/.steam/steam/steamapps/common/SteamVR/resources/settings/default.vrsettings`
 
-   `gedit ~/.steam/steam/steamapps/common/SteamVR/drivers/null/resources/settings/default.vrsettings`
+   2. Change the following properties (add if they do not exist) to the following values:
+      1. `"requireHmd" : false,`
+      2. `"activateMultipleDrivers" : true`
+      3. `"forcedDriver": "null"`
+   
+   3. Open driver settings file
+   
+      `gedit ~/.steam/steam/steamapps/common/SteamVR/drivers/null/resources/settings/default.vrsettings`
 
-   1. Set `enable` (line 3) to `true` in null driver to enable it.
+   4. Set `enable` (line 3) to `true` in null driver to enable it.
 
    [Source](https://www.reddit.com/r/Vive/comments/6uo053/how_to_use_steamvr_tracked_devices_without_a_hmd/) 
 
@@ -57,7 +59,7 @@ Have python3 and ros2 installed on your system
    ```
 
 7. Create python venv and install dependencies
-   1. install environment manager *poetry* with *pipx* (if *pipx* does not work you can also use pip, but installing a python package with normal pip and without a virtual enviroment will change your system python which can be dangerous)
+   1. install environment manager *poetry* with *pipx* (if *pipx* does not work you can also use pip, but installing a python package with normal pip and without a virtual environment will change your system python which can be dangerous)
       ```
       sudo apt install pipx
       pipx install poetry
@@ -81,20 +83,19 @@ Have python3 and ros2 installed on your system
       ```
 
 # Usage
-1. Start SteamVR from the Steam Library (If you encounter `VRClientDLLNotFound`, make sure all the dependencies are installed properly, especially VulkanSDK, and delete and recreate the symbolic link described above).
+1. Start SteamVR from the Steam Library.
 
 2. Turn on the tracker with its button, and make sure that its wireless USB dongle is plugged in to your computer. If the tracker shows up in the SteamVR overlay skip to step 4.
 
 3. Sync the tracker. Hold the button on the tracker until the light blinks. On the SteamVR overlay click the "SteamVR" dropdown menu. Click Devices->Pair Controller. The Tracker should then pair with the computer, and a green outline of the tracker should appear on the SteamVR overlay. If this doesn't work try unplugging the wireless USB dongle, plugging it back in, and restarting SteamVR. Restarting your computer wouldn't hurt either.
 
-4. Ensure the Lighthouse base stations are turned on, facing each other, have green lights showing on them Place the tracker in view of the Base Stations. The SteamVR overlay should now show two green square Base Stations and a solid green Tracker hexagon. The tracker is now working. 
+4. Ensure the Lighthouse base stations are turned on, facing each other, have green lights showing on them. Place the tracker in view of the Base Stations. The SteamVR overlay should now show at least two green square Base Stations and a solid green Tracker hexagon. The tracker is now working. 
 
      1. If you're only using 1 Base Station, make sure it's set to mode A.
      
      2. If you're using 2 Base Stations without a sync cable, ensure they're set to modes B and C.
      
      3. If you're using 2 Base Stations with a sync cable, ensure they're set to modes A and B.
-
 5. (Optional) Set world origin
    
    You can set the world origin by placing a tracker to the desired position:
